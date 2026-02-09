@@ -1,0 +1,133 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Cuadre Diario{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold"><i class="fas fa-cash-register me-2"></i>Cuadre de Caja Diario</h2>
+            <p class="text-muted">Resumen de flujos de efectivo para {{ fecha_actual }}</p>
+        </div>
+        <form class="d-flex gap-2" method="GET">
+            <input type="date" name="fecha" class="form-control" value="{{ fecha_actual }}">
+            <button class="btn btn-primary" type="submit">Filtrar</button>
+            <button class="btn btn-outline-secondary" onclick="window.print()"><i class="fas fa-print"></i></button>
+        </form>
+    </div>
+
+    <!-- Cards Resumen -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Total Ingresos</h6>
+                    <h3 class="fw-bold">${{ "{:,.2f}".format(data.resumen.total_ingresos) }}</h3>
+                    <div class="d-flex justify-content-between text-white-50 small mt-2 border-top pt-2">
+                        <span><i class="fas fa-coins me-1"></i>Efectivo: ${{ "{:,.2f}".format(data.resumen.total_efectivo) }}</span>
+                        <span><i class="fas fa-university me-1"></i>Otros: ${{ "{:,.2f}".format(data.resumen.total_bancos) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Total Gastos</h6>
+                    <h3 class="fw-bold">${{ "{:,.2f}".format(data.resumen.total_gastos) }}</h3>
+                    <small>{{ data.resumen.cant_gastos }} registros</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card {{ 'bg-primary' if data.resumen.balance_neto >= 0 else 'bg-warning' }} text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Balance Neto</h6>
+                    <h3 class="fw-bold">${{ "{:,.2f}".format(data.resumen.balance_neto) }}</h3>
+                    <div class="small mt-2 border-top pt-2 opacity-75">
+                         Diferencia del día
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Tabla Ingresos -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-arrow-up me-2"></i>Ingresos (Facturas Pagadas)</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Hora</th>
+                                    <th>Factura</th>
+                                    <th>Cliente</th>
+                                    <th>Método</th>
+                                    <th class="text-end">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in data.detalles_ingresos %}
+                                <tr>
+                                    <td>{{ item.hora }}</td>
+                                    <td>{{ item.numero }}</td>
+                                    <td>{{ item.cliente }}</td>
+                                    <td>
+                                        <span class="badge {{ 'bg-warning text-dark' if item.forma_pago == 'efectivo' else 'bg-info' }}">
+                                            {{ item.forma_pago|capitalize }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end text-success fw-bold">+${{ "{:,.2f}".format(item.total) }}</td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="4" class="text-center text-muted">No hay ingresos registrados hoy.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla Gastos -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-arrow-down me-2"></i>Egresos (Gastos)</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Hora</th>
+                                    <th>Concepto</th>
+                                    <th>Categoría</th>
+                                    <th class="text-end">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in data.detalles_gastos %}
+                                <tr>
+                                    <td>{{ item.hora }}</td>
+                                    <td>{{ item.descripcion }}</td>
+                                    <td><span class="badge bg-secondary">{{ item.categoria }}</span></td>
+                                    <td class="text-end text-danger fw-bold">-${{ "{:,.2f}".format(item.monto) }}</td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="4" class="text-center text-muted">No hay gastos registrados hoy.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

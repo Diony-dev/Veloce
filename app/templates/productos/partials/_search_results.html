@@ -1,0 +1,26 @@
+{% if productos %}
+<div class="list-group rounded-0 shadow-sm" style="max-height: 200px; overflow-y: auto;">
+    {% for p in productos %}
+    <button type="button" 
+            class="list-group-item list-group-item-action border-start-0 border-end-0 py-2"
+            onclick="seleccionarProducto('{{ p.nombre|escape }}', '{{ p.precio }}', '{{ p.codigo or '' }}', '{{ p.id }}', '{{ p.stock }}', '{{ p.tipo }}')">
+        <div class="d-flex w-100 justify-content-between align-items-center">
+            <div>
+                <h6 class="mb-0 fw-bold small text-dark">{{ p.nombre }}</h6>
+                <small class="text-muted d-block" style="font-size: 0.75rem;">
+                    {{ p.codigo if p.codigo else 'Sin Código' }} 
+                    {% if p.tipo == 'Producto' %}- Stock: {{ p.stock }}{% endif %}
+                </small>
+            </div>
+            <span class="badge bg-light text-success border fw-bold">RD$ {{ "%.2f"|format(p.precio) }}</span>
+        </div>
+    </button>
+    {% endfor %}
+</div>
+{% elif request.args.get('q')|length > 1 %}
+<div class="list-group rounded-0">
+    <div class="list-group-item text-center p-2 text-muted small bg-light">
+        No se encontraron items.
+    </div>
+</div>
+{% endif %}

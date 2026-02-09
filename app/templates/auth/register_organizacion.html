@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Veloce | Registro de Organización (Paso 1){% endblock %}
+
+{% block head_extra %}
+<style>
+    /* Pegar el contenido COMPLETO del bloque <style> de login.html aquí */
+    /* Usamos el mismo estilo base para que el layout de dos columnas funcione */
+    
+    /* 1. Contenedor de Autenticación: Ocupa toda la altura disponible */
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+        min-height: calc(100vh - 56px); 
+        padding: 0; 
+    }
+
+    /* 2. Tarjeta de Contenido del Formulario */
+    .auth-card {
+        background: white;
+        padding: 40px 30px; 
+        height: 100%; 
+        border-radius: 0; 
+        box-shadow: none; 
+        width: 100%;
+    }
+
+    .auth-header {
+        background-color: transparent; 
+        color: var(--veloce-primary); 
+        padding: 0;
+        border-bottom: none;
+    }
+
+    .auth-header h2 {
+        font-weight: 700;
+        margin-bottom: 5px;
+        font-size: 2rem;
+    }
+    
+    /* 3. Columna de Imagen */
+    .image-column {
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .image-column img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* 4. Estilo del Botón de Acción Principal (Verde Menta) */
+    .btn-primary-custom {
+        background-color: var(--veloce-accent);
+        border-color: var(--veloce-accent);
+        font-weight: 600;
+        transition: all 0.3s ease;
+        color: white;
+    }
+
+    .btn-primary-custom:hover {
+        background-color: #2cae64;
+        border-color: #2cae64;
+        color: white;
+    }
+    
+    /* Estilos del Step Indicator */
+    .step-indicator { display: flex; justify-content: space-around; margin-bottom: 25px; position: relative; }
+    .step { width: 30px; height: 30px; line-height: 30px; border-radius: 50%; background-color: #dee2e6; color: #6c757d; text-align: center; font-weight: bold; z-index: 1; }
+    .step.active { background-color: var(--veloce-primary); color: white; }
+    .step-indicator::before { content: ''; position: absolute; width: 50%; height: 2px; background-color: #dee2e6; top: 15px; left: 25%; }
+
+
+    /* 5. Ajustes Responsivos (Móviles) */
+    footer {
+        display: none !important;
+    }
+
+    @media (max-width: 992px) {
+        .image-column {
+            display: none;
+        }
+        .auth-container {
+             align-items: center;
+             padding: 20px;
+        }
+        .auth-card {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            max-width: 400px;
+            height: auto;
+            margin: auto;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="auth-container">
+    <div class="row w-100 g-0">
+        
+        <div class="col-lg-5 d-none d-lg-block image-column ">
+            <img src="{{url_for('static', filename='/image/startup.jpg')}}" alt="Startup o gráfico de crecimiento">
+        </div>
+
+        <div class="col-lg-7 d-flex align-items-center justify-content-center">
+            <div class="auth-card" style="max-width: 400px;">
+                <div class="auth-header text-center mb-4">
+                    <h2><i class="fas fa-bolt"></i> Veloce</h2> 
+                    <p class="mb-0">Sistema de Facturación</p>
+                </div>
+                
+                <div class="auth-body p-0">
+                 
+
+                    <div class="step-indicator">
+                        <div class="step active">1</div>
+                        <div class="step">2</div>
+                    </div>
+                    
+                    <h4 class="text-center mb-4 text-muted">Datos de la Organización</h4>
+                    
+                    <form method="POST" enctype="multipart/form-data" action="{{ url_for('auth.register') }}">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre de la Organización <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="nombre_org" required 
+                                   placeholder="Ingrese el nombre de su empresa">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Dirección <span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="direccion" required 
+                                      placeholder="Dirección completa" rows="2"></textarea>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Teléfono <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" name="telefono" required 
+                                       placeholder="(000) 000-0000">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" name="email" required 
+                                       placeholder="correo@empresa.com">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">RNC <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="rnc" required 
+                                   placeholder="Número de RNC">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Logo de la Organización</label>
+                            <input type="file" class="form-control" name="logo" 
+                                   accept="image/*" onchange="previewImage(this, 'logoPreview')">
+                            <div class="mt-2 text-center">
+                                <img id="logoPreview" src="#" alt="Vista previa del logo" 
+                                     style="max-width: 100px; max-height: 100px; display: none;" class="img-thumbnail">
+                            </div>
+                            <small class="text-muted">Formatos: JPG, PNG, GIF. Máx: 2MB</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary-custom w-100">
+                            Continuar al Registro de Usuario
+                        </button>
+                        
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                ¿Ya tiene una cuenta? <a href="{{ url_for('auth.login') }}" style="color: var(--veloce-primary);">Iniciar Sesión</a>
+                            </small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script>
+    function previewImage(input, previewId) {
+        const preview = document.getElementById(previewId);
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.src = '#';
+            preview.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

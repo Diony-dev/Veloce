@@ -1,0 +1,147 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Veloce | Registrar Gasto{% endblock %}
+
+{% block dashboard_content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-gradient-danger text-white py-4 position-relative">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                            <i class="fas fa-receipt fa-2x text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-0 fw-bold">Registrar Nuevo Gasto</h4>
+                            <p class="mb-0 small opacity-75">Ingresa los detalles del gasto realizado</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-5 bg-light">
+                    <form method="POST" action="{{ url_for('gastos.crear_gastos_route') }}" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        
+                        <!-- Descripción -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark small text-uppercase">Descripción del Gasto</label>
+                            <div class="input-group input-group-lg shadow-sm">
+                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-pen"></i></span>
+                                <input type="text" name="descripcion" class="form-control border-start-0 ps-0" placeholder="Ej: Pago de Luz, Compra de agua..." required>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <!-- Monto -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark small text-uppercase">Monto (RD$)</label>
+                                <div class="input-group input-group-lg shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0 text-danger fw-bold">$</span>
+                                    <input type="number" step="0.01" name="monto" class="form-control border-start-0 ps-0 fw-bold text-dark" placeholder="0.00" required>
+                                </div>
+                            </div>
+                            <!-- Categoría -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark small text-uppercase">Categoría</label>
+                                <div class="input-group input-group-lg shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-tag"></i></span>
+                                    <select name="categoria" class="form-select border-start-0 ps-0" required>
+                                        <option value="" selected disabled>Seleccionar...</option>
+                                        <option value="Servicios">Servicios (Luz, Agua, Internet)</option>
+                                        <option value="Nómina">Nómina / Salarios</option>
+                                        <option value="Alquiler">Alquiler</option>
+                                        <option value="Insumos">Insumos / Materiales</option>
+                                        <option value="Impuestos">Impuestos</option>
+                                        <option value="Otros">Otros</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <!-- Fecha -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark small text-uppercase">Fecha</label>
+                                <div class="input-group input-group-lg shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-calendar-alt"></i></span>
+                                    <input type="date" name="fecha" class="form-control border-start-0 ps-0" value="{{ now_date }}" required>
+                                </div>
+                            </div>
+                            <!-- Proveedor -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark small text-uppercase">Proveedor <span class="text-muted fw-normal small">(Opcional)</span></label>
+                                <div class="input-group input-group-lg shadow-sm">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-building"></i></span>
+                                    <input type="text" name="proveedor" class="form-control border-start-0 ps-0" placeholder="Ej: Edeeste">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Comprobante (Nuevo Campo) -->
+                        <div class="mb-5">
+                            <label class="form-label fw-bold text-dark small text-uppercase">Comprobante / Recibo <span class="text-muted fw-normal small">(Imagen)</span></label>
+                            <div class="card border-dashed bg-white shadow-sm">
+                                <div class="card-body text-center py-4">
+                                    <div class="mb-3">
+                                        <i class="fas fa-cloud-upload-alt fa-3x text-muted opacity-50"></i>
+                                    </div>
+                                    <input type="file" name="comprobante" class="form-control form-control-sm w-75 mx-auto" accept="image/*">
+                                    <small class="text-muted d-block mt-2">Sube una foto del recibo o factura</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-between align-items-center">
+                            <a href="{{ url_for('gastos.listar_gastos') }}" class="btn btn-link text-decoration-none text-muted fw-bold">
+                                <i class="fas fa-arrow-left me-1"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger btn-lg px-5 rounded-pill shadow-sm fw-bold">
+                                Guardar Gasto <i class="fas fa-check ms-2"></i>
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #a71d2a 100%);
+    }
+    .border-dashed {
+        border: 2px dashed #dee2e6;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    .border-dashed:hover {
+        border-color: #dc3545;
+        background-color: #fff5f5;
+    }
+    .form-control:focus, .form-select:focus {
+        box-shadow: none;
+        border-color: #dc3545;
+    }
+    .input-group-text {
+        border-color: #ced4da;
+    }
+    .input-group:focus-within .input-group-text {
+        border-color: #dc3545;
+    }
+    .input-group:focus-within .form-control, 
+    .input-group:focus-within .form-select {
+        border-color: #dc3545;
+    }
+</style>
+
+<script>
+    // Script simple para poner la fecha de hoy por defecto si el backend no la manda
+    document.addEventListener('DOMContentLoaded', () => {
+        const fechaInput = document.querySelector('input[name="fecha"]');
+        if (!fechaInput.value) {
+            fechaInput.valueAsDate = new Date();
+        }
+    });
+</script>
+{% endblock %}

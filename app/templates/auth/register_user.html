@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Veloce | Registro de Usuario (Paso 2){% endblock %}
+
+{% block head_extra %}
+<style>
+    /* Reutilizamos el mismo estilo base del paso 1 */
+
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+        min-height: calc(100vh - 56px);
+        padding: 0;
+    }
+
+    .auth-card {
+        background: white;
+        padding: 40px 30px;
+        height: 100%;
+        border-radius: 0;
+        box-shadow: none;
+        width: 100%;
+    }
+
+    .auth-header {
+        background-color: transparent;
+        color: var(--veloce-primary);
+        padding: 0;
+        border-bottom: none;
+    }
+
+    .auth-header h2 {
+        font-weight: 700;
+        margin-bottom: 5px;
+        font-size: 2rem;
+    }
+
+    .image-column {
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .image-column img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .btn-primary-custom {
+        background-color: var(--veloce-accent);
+        border-color: var(--veloce-accent);
+        font-weight: 600;
+        transition: all 0.3s ease;
+        color: white;
+    }
+
+    .btn-primary-custom:hover {
+        background-color: #2cae64;
+        border-color: #2cae64;
+        color: white;
+    }
+
+    .step-indicator {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .step {
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        border-radius: 50%;
+        background-color: #dee2e6;
+        color: #6c757d;
+        text-align: center;
+        font-weight: bold;
+        z-index: 1;
+    }
+
+    .step.active {
+        background-color: var(--veloce-primary);
+        color: white;
+    }
+
+    .step-indicator::before {
+        content: '';
+        position: absolute;
+        width: 50%;
+        height: 2px;
+        background-color: #dee2e6;
+        top: 15px;
+        left: 25%;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    @media (max-width: 992px) {
+        .image-column {
+            display: none;
+        }
+
+        .auth-container {
+            align-items: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            max-width: 400px;
+            height: auto;
+            margin: auto;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="row w-100 g-0">
+
+        <!-- Imagen lateral -->
+        <div class="col-lg-5 d-none d-lg-block image-column">
+            <img src="{{ url_for('static', filename='image/startup.jpg') }}" alt="Equipo de trabajo o colaboración">
+        </div>
+
+        <!-- Formulario -->
+        <div class="col-lg-7 d-flex align-items-center justify-content-center">
+            <div class="auth-card" style="max-width: 400px;">
+                <div class="auth-header text-center mb-4">
+                    <h2><i class="fas fa-bolt"></i> Veloce</h2>
+                    <p class="mb-0">Sistema de Facturación</p>
+                </div>
+
+                <div class="auth-body p-0">
+
+                    <!-- Mensajes flash (reutilizados de base.html) -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <div class="step-indicator">
+                        <div class="step">1</div>
+                        <div class="step active">2</div>
+                    </div>
+
+                    <h4 class="text-center mb-4 text-muted">Datos del Usuario Administrador</h4>
+
+                    <form method="POST" enctype="multipart/form-data" action="{{ url_for('auth.register_user', org_id=org_id) }}">
+                        <input type="hidden" name="rol" value="admin">
+                        <input type="hidden" name="departamento" value="general">
+
+                        <div class="mb-3">
+                            <label class="form-label">Nombre Completo <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="nombre" required placeholder="Ej. Juan Pérez">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Correo Electrónico (Login) <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" name="correo" required placeholder="ejemplo@empresa.com">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Contraseña <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" name="contraseña" required placeholder="Mínimo 8 caracteres">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Confirmar Contraseña <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" name="confirmar_contraseña" required placeholder="Vuelve a escribir tu contraseña">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Foto de Perfil</label>
+                            <input type="file" class="form-control" name="foto" accept="image/*" onchange="previewImage(this, 'fotoPreview')">
+                            <div class="mt-2 text-center">
+                                <img id="fotoPreview" src="#" alt="Vista previa de la foto" style="max-width: 100px; max-height: 100px; display: none; border-radius: 50%;" class="img-thumbnail">
+                            </div>
+                            <small class="text-muted">Una foto profesional para tu perfil.</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-custom w-100">
+                            Finalizar Registro
+                        </button>
+
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                ¿Ya tienes una cuenta? <a href="{{ url_for('auth.login') }}" style="color: var(--veloce-primary);">Iniciar Sesión</a>
+                            </small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script>
+    function previewImage(input, previewId) {
+        const preview = document.getElementById(previewId);
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.src = '#';
+            preview.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

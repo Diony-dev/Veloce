@@ -1,0 +1,133 @@
+<div id="gastos-container" hx-swap="outerHTML">
+    
+    <!-- Encabezado y Acciones -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 fw-bold text-secondary mb-0">Gestión de Gastos</h2>
+        <a href="{{ url_for('gastos.crear_gastos_route') }}" class="btn btn-danger">
+            <i class="fas fa-minus-circle me-1"></i> Registrar Gasto
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body bg-light rounded">
+            <form class="row g-3 align-items-center"
+                  hx-get="#"
+                  hx-target="#gastos-container"
+                  hx-indicator="#loading-indicator">
+                
+                <div class="col-md-3">
+                    <input type="text" name="search" class="form-control" placeholder="Buscar concepto o proveedor...">
+                </div>
+                <div class="col-md-2">
+                    <select name="categoria" class="form-select">
+                        <option value="">Todas las Categorías</option>
+                        <option value="Servicios">Servicios</option>
+                        <option value="Nómina">Nómina</option>
+                        <option value="Alquiler">Alquiler</option>
+                        <option value="Insumos">Insumos</option>
+                        <option value="Impuestos">Impuestos</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="fecha_desde" class="form-control" aria-label="Desde">
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="fecha_hasta" class="form-control" aria-label="Hasta">
+                </div>
+                <div class="col-md-3 text-end">
+                    <button type="submit" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-filter me-1"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between">
+            <span class="fw-bold text-secondary">Registros</span>
+            <span class="badge bg-secondary">{{ pagination.total }} gastos</span>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="bg-light text-secondary">
+                    <tr>
+                        <th class="ps-4">Descripción</th>
+                        <th>Categoría</th>
+                        <th>Fecha</th>
+                        <th>Proveedor</th>
+                        <th class="text-end pe-4">Monto</th>
+                        <th class="text-center">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for gasto in gastos %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-dark">{{ gasto.descripcion }}</td>
+                        <td>
+                            {% if gasto.categoria == 'Nómina' %} <span class="badge bg-primary">Nómina</span>
+                            {% elif gasto.categoria == 'Servicios' %} <span class="badge bg-info text-dark">Servicios</span>
+                            {% elif gasto.categoria == 'Impuestos' %} <span class="badge bg-danger">Impuestos</span>
+                            {% else %} <span class="badge bg-secondary">{{ gasto.categoria }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small">{{ gasto.fecha.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ gasto.proveedor or '-' }}</td>
+                        <td class="text-end pe-4 fw-bold text-danger">
+                            -RD$ {{ "%.2f"|format(gasto.monto) }}
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ url_for('gastos.ver_gasto', gasto_id=gasto.id) }}" class="btn btn-sm btn-outline-secondary border-0" title="Ver Detalle">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <form action="{{ url_for('gastos.eliminar_gasto_route', gasto_id=gasto.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-outline-danger border-0" 
+                                        onclick="return confirm('¿Eliminar este gasto permanentemente?')" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="fas fa-wallet fa-2x mb-3 text-secondary"></i><br>
+                            No hay gastos registrados con estos filtros.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        {% if pagination.pages > 1 %}
+        <div class="card-footer bg-white py-3">
+            <nav aria-label="Navegación de gastos">
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                        <button class="page-link" 
+                                hx-get="{{ url_for('gastos.listar_gastos', page=pagination.prev_num) }}"
+                                hx-target="#gastos-container">Anterior</button>
+                    </li>
+                    <li class="page-item active"><span class="page-link">{{ pagination.page }}</span></li>
+                    <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                        <button class="page-link" 
+                                hx-get="{{ url_for('gastos.listar_gastos', page=pagination.next_num) }}"
+                                hx-target="#gastos-container">Siguiente</button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Spinner HTMX -->
+    <div id="loading-indicator" class="htmx-indicator text-center py-3">
+        <div class="spinner-border text-danger spinner-border-sm" role="status"></div>
+    </div>
+</div>

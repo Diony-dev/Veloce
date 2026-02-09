@@ -1,0 +1,8 @@
+@media (min-width: 992px) { /* Applies to large screens and up */
+  .offcanvas-lg {
+    visibility: visible !important;
+    position: static !important;
+    transform: none !important;
+    border-right: 1px solid rgba(0,0,0,.2);
+  }
+}

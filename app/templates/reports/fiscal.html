@@ -1,0 +1,102 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Reporte Fiscal (ITBIS){% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-danger"><i class="fas fa-landmark me-2"></i>Reporte Fiscal (Estimado)</h2>
+            <p class="text-muted">Cálculo de ITBIS basado en ventas reportadas.</p>
+        </div>
+        <form class="d-flex gap-2 align-items-end" method="GET">
+            <div>
+                <label class="form-label small">Desde</label>
+                <input type="date" name="fecha_inicio" class="form-control" value="{{ fecha_inicio }}">
+            </div>
+            <div>
+                <label class="form-label small">Hasta</label>
+                <input type="date" name="fecha_fin" class="form-control" value="{{ fecha_fin }}">
+            </div>
+            <button class="btn btn-primary mb-1" type="submit">Generar</button>
+            <button class="btn btn-outline-secondary mb-1" type="button" onclick="window.print()"><i class="fas fa-print"></i></button>
+        </form>
+    </div>
+
+    <!-- Resumen Fiscal -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card bg-light border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted">Ventas Netas (Base)</h6>
+                    <h3 class="fw-bold text-dark">${{ "{:,.2f}".format(total_base) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-danger text-white shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-white-50">Total ITBIS (18%)</h6>
+                    <h3 class="fw-bold">${{ "{:,.2f}".format(total_itbis) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark text-white shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-white-50">Total General Facturado</h6>
+                    <h3 class="fw-bold">${{ "{:,.2f}".format(total_general) }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center" role="alert">
+        <i class="fas fa-exclamation-triangle me-3 fa-2x"></i>
+        <div>
+            <strong>Nota Importante:</strong> Este reporte asume que el monto total de la factura <strong>incluye el ITBIS (18%)</strong>.
+            Cálculo: <em>Base = Total / 1.18</em>. Si sus precios son +ITBIS, ajuste la configuración.
+        </div>
+    </div>
+
+    <!-- Tabla Detalle -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Fecha</th>
+                            <th>NCF / Factura</th>
+                            <th>Cliente</th>
+                            <th class="text-end">Base Imponible</th>
+                            <th class="text-end">ITBIS (18%)</th>
+                            <th class="text-end pe-4">Total Facturado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in facturas %}
+                        <tr>
+                            <td class="ps-4">{{ f.fecha.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ f.ncf }}</td>
+                            <td>
+                                {% if f.cliente is mapping %}
+                                    {{ f.cliente.nombre }} {{ f.cliente.apellido }}
+                                {% else %}
+                                    {{ f.cliente }}
+                                {% endif %}
+                            </td>
+                            <td class="text-end text-muted">${{ "{:,.2f}".format(f.base_imponible) }}</td>
+                            <td class="text-end text-danger fw-bold">${{ "{:,.2f}".format(f.itbis_calculado) }}</td>
+                            <td class="text-end pe-4 fw-bold">${{ "{:,.2f}".format(f.total_facturado) }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="6" class="text-center py-4">No hay facturas pagadas en este rango.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

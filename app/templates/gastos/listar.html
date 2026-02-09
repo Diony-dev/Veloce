@@ -1,0 +1,12 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Veloce | Gastos{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid p-2 p-md-3">
+    <!-- El ID coincide con el hx-target del parcial -->
+    <div id="gastos-container">
+        {% include 'gastos/_gastos_table.html' %}
+    </div>
+</div>
+{% endblock %}

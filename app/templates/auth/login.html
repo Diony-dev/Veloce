@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Veloce | Iniciar Sesión{% endblock %}
+
+{% block head_extra %}
+<style>
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+        min-height: calc(100vh - 56px);
+        padding: 0;
+    }
+
+    .auth-card {
+        background: white;
+        padding: 40px 30px;
+        height: 100%;
+        border-radius: 0;
+        box-shadow: none;
+        width: 100%;
+    }
+
+    .auth-header {
+        background-color: transparent;
+        color: var(--veloce-primary);
+        padding: 0;
+        border-bottom: none;
+    }
+
+    .auth-header h2 {
+        font-weight: 700;
+        margin-bottom: 5px;
+        font-size: 2rem;
+    }
+
+    .image-column {
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .image-column img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .btn-primary-custom {
+        background-color: var(--veloce-accent);
+        border-color: var(--veloce-accent);
+        font-weight: 600;
+        transition: all 0.3s ease;
+        color: white;
+    }
+
+    .btn-primary-custom:hover {
+        background-color: #2cae64;
+        border-color: #2cae64;
+        color: white;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    @media (max-width: 992px) {
+        .image-column {
+            display: none;
+        }
+
+        .auth-container {
+            align-items: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            max-width: 400px;
+            height: auto;
+            margin: auto;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="auth-container">
+    <div class="row w-100 g-0">
+        
+        <!-- Columna de imagen -->
+        <div class="col-lg-5 d-none d-lg-block image-column">
+            <img src="{{ url_for('static', filename='image/startup.jpg') }}" alt="Centro de belleza o servicios">
+        </div>
+
+        <!-- Columna del formulario -->
+        <div class="col-lg-7 d-flex align-items-center justify-content-center">
+            <div class="auth-card" style="max-width: 400px;">
+                
+                <div class="auth-header text-center mb-4">
+                    <h2><i class="fas fa-bolt"></i> Veloce</h2>
+                    <p class="mb-0">Sistema de Facturación</p>
+                </div>
+
+                <div class="auth-body p-0">
+                  
+
+                    <h4 class="text-center mb-4 text-muted">Acceder a tu cuenta</h4>
+
+                    <form method="POST" action="{{ url_for('auth.login') }}">
+                        <div class="mb-3">
+                            <label class="form-label">Correo electrónico <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" name="correo" placeholder="correo@empresa.com" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Contraseña <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" name="contraseña" placeholder="••••••••" required>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <input type="checkbox" id="remember" name="remember">
+                                <label for="remember" class="text-muted ms-1">Recordarme</label>
+                            </div>
+                            <a href="#" class="text-decoration-none" style="color: var(--veloce-primary);">¿Olvidaste tu contraseña?</a>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-custom w-100">
+                            Iniciar Sesión
+                        </button>
+
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                ¿No tienes una cuenta?
+                                <a href="{{ url_for('auth.register') }}" style="color: var(--veloce-primary);">
+                                    Crear una cuenta
+                                </a>
+                            </small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

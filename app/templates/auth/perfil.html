@@ -1,0 +1,105 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Veloce | Mi Perfil{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white border-bottom py-3">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="fas fa-user-circle fa-lg"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0 fw-bold text-dark">Mi Perfil</h5>
+                        <p class="text-muted small mb-0">Gestiona tu información personal</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="row align-items-center mb-5">
+                        <div class="col-md-auto text-center">
+                            <div class="position-relative d-inline-block">
+                                {% if user.foto and user.foto != 'default.jpg' %}
+                                <img src="{{ user.foto }}" alt="Foto de perfil" class="rounded-circle shadow-sm object-fit-cover" style="width: 120px; height: 120px;">
+                                {% else %}
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 120px; height: 120px;">
+                                    <span class="h1 text-secondary mb-0">{{ user.nombre[0]|upper }}</span>
+                                </div>
+                                {% endif %}
+                                <label for="foto" class="btn btn-sm btn-primary rounded-circle position-absolute bottom-0 end-0 mb-1 me-1 shadow-sm" title="Cambiar foto">
+                                    <i class="fas fa-camera"></i>
+                                </label>
+                                <input type="file" id="foto" name="foto" class="d-none" accept="image/*" onchange="previewImage(this)">
+                            </div>
+                        </div>
+                        <div class="col-md ms-md-3 mt-3 mt-md-0">
+                            <h4 class="fw-bold mb-1">{{ user.nombre }}</h4>
+                            <p class="text-muted mb-2">{{ user.rol|capitalize }} - {{ user.departamento|capitalize }}</p>
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 rounded-pill">Activo</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-uppercase text-secondary">Nombre Completo</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-user text-muted"></i></span>
+                                <input type="text" name="nombre" class="form-control border-start-0 ps-0" value="{{ user.nombre }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-uppercase text-secondary">Correo Electrónico</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted"></i></span>
+                                <input type="email" name="correo" class="form-control border-start-0 ps-0" value="{{ user.correo }}" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Aquí podríamos poner cambio de contraseña en el futuro -->
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-5 pt-3 border-top">
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-light">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-save me-2"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                // Busca la imagen previa y actualiza su src
+                var img = input.parentElement.querySelector('img');
+                if (img) {
+                    img.src = e.target.result;
+                } else {
+                    // Si no había imagen (era el placeholder de iniciales), recargamos para simplificar o manipulamos el DOM más complejo.
+                    // Por simplicidad, asumimos que siempre habrá un img o div.
+                    // Si es el div de iniciales, lo reemplazamos por una img
+                    var div = input.parentElement.querySelector('.bg-light');
+                    if(div) {
+                        var newImg = document.createElement('img');
+                        newImg.src = e.target.result;
+                        newImg.className = "rounded-circle shadow-sm object-fit-cover";
+                        newImg.style.width = "120px";
+                        newImg.style.height = "120px";
+                        div.replaceWith(newImg);
+                    }
+                }
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% if pagination %}
+<div class="flex justify-center mt-6 space-x-2">
+    {% if pagination.has_prev %}
+    <a href="{{ url_for('factura.listar_facturas', page=pagination.prev_num) }}" 
+       class="px-3 py-2 bg-[var(--veloce-primary)] text-white rounded-lg hover:bg-blue-700">
+       <i class="fa-solid fa-angle-left"></i> Anterior
+    </a>
+    {% endif %}
+
+    <span class="px-3 py-2 bg-gray-100 rounded-lg text-gray-700">
+        Página {{ pagination.page }} de {{ pagination.pages }}
+    </span>
+
+    {% if pagination.has_next %}
+    <a href="{{ url_for('factura.listar_facturas', page=pagination.next_num) }}" 
+       class="px-3 py-2 bg-[var(--veloce-primary)] text-white rounded-lg hover:bg-blue-700">
+       Siguiente <i class="fa-solid fa-angle-right"></i>
+    </a>
+    {% endif %}
+</div>
+{% endif %}

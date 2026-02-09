@@ -1,0 +1,113 @@
+<div id="facturas-cliente-tabla" hx-swap="outerHTML">
+
+    {% if not facturas %}
+        <div class="text-center p-5">
+            <div class="mb-3">
+                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <i class="fas fa-file-invoice fa-lg text-muted"></i>
+                </div>
+            </div>
+            <h6 class="text-muted">No hay facturas registradas</h6>
+            <p class="text-muted small mb-3">Este cliente aún no tiene facturas.</p>
+            <a href="{{ url_for('factura.crear_factura_route') }}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus me-1"></i> Crear Factura
+            </a>
+        </div>
+    
+    {% else %}
+    
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light text-secondary">
+                <tr>
+                    <th scope="col" class="ps-4 py-3 text-uppercase small"># Factura</th>
+                    <th scope="col" class="py-3 text-uppercase small">Fecha</th>
+                    <th scope="col" class="py-3 text-uppercase small">Total</th>
+                    <th scope="col" class="py-3 text-center text-uppercase small">Estado</th>
+                    <th scope="col" class="pe-4 py-3 text-end text-uppercase small">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for factura in facturas %}
+                <tr>
+                    <td class="ps-4 fw-bold text-primary">#{{ factura.invoice_num or factura.id }}</td>
+                    <td class="text-muted small">{{ factura.fecha_emision }}</td>
+                    <td class="fw-bold text-dark">${{ factura.total }}</td>
+                    <td class="text-center">
+                        {% if factura.estado == 'Pagado' %}
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3">Pagado</span>
+                        {% elif factura.estado == 'Enviado' %}
+                        <span class="badge bg-info bg-opacity-10 text-info border border-info rounded-pill px-3">Enviado</span>
+                        {% elif factura.estado == 'Pendiente' %}
+                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning rounded-pill px-3">Pendiente</span>
+                        {% else %}
+                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary rounded-pill px-3">{{ factura.estado }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="pe-4 text-end">
+                        <div class="btn-group">
+                            <a href="{{url_for('factura.ver_factura', factura_id=factura.id)}}" class="btn btn-sm btn-light text-secondary" title="Ver Detalle">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if pagination and pagination.pages > 1 %}
+    <div class="card-footer bg-white border-top p-3">
+        <nav aria-label="Paginación de facturas" hx-indicator="#loading-spinner-{{ cliente.id }}">
+            <div class="d-flex justify-content-between align-items-center">
+                <div id="loading-spinner-{{ cliente.id }}" class="htmx-indicator">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+
+                <ul class="pagination pagination-sm mb-0 ms-auto">
+                    <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                        <a class="page-link"
+                           href="{{ url_for('cliente.ver_cliente', cliente_id=cliente.id, page=pagination.prev_num) }}"
+                           hx-get="{{ url_for('cliente.ver_cliente', cliente_id=cliente.id, page=pagination.prev_num) }}"
+                           hx-target="#facturas-cliente-tabla"
+                           aria-label="Anterior">
+                            Anterior
+                        </a>
+                    </li>
+
+                    {% for page_num in range(1, pagination.pages + 1) %}
+                        {% if pagination.page == page_num %}
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="{{ url_for('cliente.ver_cliente', cliente_id=cliente.id, page=page_num) }}"
+                               hx-get="{{ url_for('cliente.ver_cliente', cliente_id=cliente.id, page=page_num) }}"
+                               hx-target="#facturas-cliente-tabla">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                        <a class="page-link"
+                           href="{{ url_for('cliente.ver_cliente', cliente_id=cliente.id, page=pagination.next_num) }}"
+                           hx-get="{{ url_for('cliente.ver_cliente', cliente_id=cliente.id, page=pagination.next_num) }}"
+                           hx-target="#facturas-cliente-tabla"
+                           aria-label="Siguiente">
+                            Siguiente
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>

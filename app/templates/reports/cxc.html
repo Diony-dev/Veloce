@@ -1,0 +1,70 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Cuentas por Cobrar{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-warning"><i class="fas fa-hand-holding-usd me-2"></i>Cuentas por Cobrar</h2>
+            <p class="text-muted">Listado de facturas pendientes de pago.</p>
+        </div>
+        <button class="btn btn-outline-secondary" onclick="window.print()"><i class="fas fa-print"></i> Imprimir</button>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <h4 class="fw-bold">Total por Cobrar: <span class="text-danger">${{ "{:,.2f}".format(total_deuda) }}</span></h4>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Factura #</th>
+                            <th>Cliente</th>
+                            <th>Fecha Emisión</th>
+                            <th>Días Vencido</th>
+                            <th>Estado</th>
+                            <th class="text-end pe-4">Total Pendiente</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in facturas %}
+                        <tr>
+                            <td class="ps-4 fw-bold">{{ f.invoice_num }}</td>
+                            <td>
+                                {% if f.cliente is mapping %}
+                                    {{ f.cliente.nombre }} {{ f.cliente.apellido }}
+                                {% else %}
+                                    {{ f.cliente }}
+                                {% endif %}
+                            </td>
+                            <td>{{ f.fecha_emision.strftime('%d/%m/%Y') if f.fecha_emision else '-' }}</td>
+                            <td>
+                                {% set dias = f.dias_vencido | int %}
+                                <span class="badge {{ 'bg-danger' if dias > 30 else 'bg-warning text-dark' }}">
+                                    {{ dias }} días
+                                </span>
+                            </td>
+                            <td><span class="badge bg-secondary">{{ f.estado }}</span></td>
+                            <td class="text-end pe-4 fw-bold text-danger">${{ "{:,.2f}".format(f.total) }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-check-circle fa-2x mb-3 text-success"></i><br>
+                                No hay cuentas por cobrar pendientes. ¡Todo al día!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

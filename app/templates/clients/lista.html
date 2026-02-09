@@ -1,0 +1,48 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}Veloce | Listado de Clientes{% endblock %}
+
+{% block dashboard_content %}
+
+
+<div class="container-fluid p-2 p-md-3" id="facturas-container">
+    
+    {% include 'clients/_cliente_table.html' %}
+</div>
+
+<style>
+/* Mejoras específicas para mobile */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .card {
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .btn-group .btn {
+        padding: 0.25rem 0.5rem;
+    }
+    
+    /* Mejorar legibilidad en móviles */
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}
+
+/* Estados hover para desktop */
+@media (min-width: 992px) {
+    .table-hover tbody tr:hover {
+        background-color: rgba(var(--veloce-primary-rgb), 0.05);
+    }
+}
+
+/* Asegurar que los badges sean consistentes */
+.badge {
+    font-size: 0.75em;
+}
+</style>
+{% endblock %}

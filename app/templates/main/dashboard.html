@@ -1,0 +1,209 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Panel Principal{% endblock %}
+
+{% block dashboard_content %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Banner Organizacional -->
+<div class="dashboard-banner mb-4 p-4 rounded-3 shadow-sm d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); color: white;">
+    <div>
+        <h1 class="display-6 fw-bold mb-1">{{ organizacion.nombre }}</h1>
+        <p class="mb-0 opacity-75"><i class="fas fa-chart-line me-2"></i>Panel de Control Financiero</p>
+    </div>
+    <!-- Logo -->
+    {% if organizacion.logo and organizacion.logo != 'default_logo.png' %}
+    <div class="bg-white p-2 rounded-3 shadow-sm">
+        <img src="{{ organizacion.logo }}" alt="Logo" style="height: 60px; width: auto; display: block;">
+    </div>
+    {% endif %}
+</div>
+
+<!-- KPIs Cards -->
+<div class="row g-3 mb-4">
+    <!-- Ingresos -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100 border-start border-4 border-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="text-muted mb-0">Ingresos (Mes)</h6>
+                    <div class="bg-success bg-opacity-10 p-2 rounded-circle text-success">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-0">${{ "{:,.2f}".format(kpis.ingresos_mes) }}</h3>
+            </div>
+        </div>
+    </div>
+    <!-- Gastos -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100 border-start border-4 border-danger">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="text-muted mb-0">Gastos (Mes)</h6>
+                    <div class="bg-danger bg-opacity-10 p-2 rounded-circle text-danger">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-0">${{ "{:,.2f}".format(kpis.gastos_mes) }}</h3>
+            </div>
+        </div>
+    </div>
+    <!-- Beneficio -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100 border-start border-4 border-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="text-muted mb-0">Beneficio Neto</h6>
+                    <div class="bg-primary bg-opacity-10 p-2 rounded-circle text-primary">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-0 {{ 'text-danger' if kpis.beneficio_neto < 0 else 'text-success' }}">
+                    ${{ "{:,.2f}".format(kpis.beneficio_neto) }}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <!-- Pendientes -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100 border-start border-4 border-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="text-muted mb-0">Facturas Pendientes</h6>
+                    <div class="bg-warning bg-opacity-10 p-2 rounded-circle text-warning">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-0">{{ kpis.facturas_pendientes }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <!-- Comparativa Anual -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-0 pt-4 pb-0">
+                <h5 class="fw-bold mb-0">Flujo de Caja Anual</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chartAnual" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    <!-- Gastos por Categoría -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-0 pt-4 pb-0">
+                <h5 class="fw-bold mb-0">Gastos por Categoría</h5>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <div style="width: 100%; max-width: 300px;">
+                    <canvas id="chartGastos"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Clientes -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent border-0 pt-4 pb-2">
+        <h5 class="fw-bold mb-0">Top Clientes</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Cliente</th>
+                        <th>Facturas Pagadas</th>
+                        <th class="text-end pe-4">Total Generado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in top_clientes %}
+                    <tr>
+                        <td class="ps-4 fw-medium">{{ cliente.nombre_cliente }} {{ cliente.apellido_cliente }}</td>
+                        <td><span class="badge bg-secondary rounded-pill">{{ cliente.count }}</span></td>
+                        <td class="text-end pe-4 fw-bold text-success">${{ "{:,.2f}".format(cliente.total_gastado) }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center py-4 text-muted">No hay datos suficientes aún.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts for Charts -->
+<script>
+    // Recibimos los datos ya serializados desde el Backend
+    const comparativaData = JSON.parse('{{ comparativa_json | safe }}');
+    const gastosData = JSON.parse('{{ gastos_cat_json | safe }}');
+
+    // --- Chart 1: Comparativa Anual ---
+    const ctxAnual = document.getElementById('chartAnual').getContext('2d');
+    new Chart(ctxAnual, {
+        type: 'bar',
+        data: {
+            labels: comparativaData.labels,
+            datasets: [
+                {
+                    label: 'Ingresos',
+                    data: comparativaData.ingresos,
+                    backgroundColor: '#198754',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Gastos',
+                    data: comparativaData.gastos,
+                    backgroundColor: '#dc3545',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // --- Chart 2: Gastos por Categoría ---
+    const ctxGastos = document.getElementById('chartGastos').getContext('2d');
+    new Chart(ctxGastos, {
+        type: 'doughnut',
+        data: {
+            labels: gastosData.labels,
+            datasets: [{
+                data: gastosData.data,
+                backgroundColor: [
+                    '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            },
+            cutout: '70%'
+        }
+    });
+</script>
+{% endblock %}

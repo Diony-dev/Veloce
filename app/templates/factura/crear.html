@@ -1,0 +1,376 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Veloce | Crear Nueva Factura{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-10">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom py-3">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="fas fa-file-invoice fa-lg"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0 fw-bold text-dark">Nueva Factura</h5>
+                        <p class="text-muted small mb-0">Crea un nuevo documento de venta</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body p-4">
+                <form id="factura-form" method="post" action="{{ url_for('factura.crear_factura_route') }}">
+                    
+                    <!-- Sección Superior: Cliente y Fecha -->
+                    <div class="row g-3 mb-4 p-3 bg-light rounded-3">
+                        <div class="col-md-6 position-relative">
+                            <label class="form-label fw-medium text-secondary">Cliente</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="fas fa-user-check text-muted"></i></span>
+                                <!-- Campo Oculto para el ID -->
+                                <input type="hidden" name="cliente_id" id="cliente_id" required>
+                                
+                                <!-- Campo de Búsqueda Visible -->
+                                <input type="text" id="cliente_search" class="form-control" 
+                                       placeholder="Buscar cliente por nombre..." 
+                                       autocomplete="off"
+                                       hx-get="{{ url_for('cliente.buscar_clientes') }}" 
+                                       hx-trigger="keyup changed delay:500ms" 
+                                       hx-target="#client-search-results" 
+                                       name="q">
+                            </div>
+                            <!-- Contenedor de Resultados -->
+                            <div id="client-search-results" class="position-absolute w-100 shadow-sm bg-white rounded-bottom" style="z-index: 1000;"></div>
+                        </div>
+                        
+
+                        <div class="col-md-3">
+                            <label class="form-label fw-medium text-secondary">Fecha de Emisión</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="fas fa-calendar-alt text-muted"></i></span>
+                                <input type="date" name="fecha" class="form-control" value="{{ now_date }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-medium text-secondary">Estado</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="fas fa-info-circle text-muted"></i></span>
+                                <select name="estado" class="form-select" required>
+                                    <option value="Pendiente" selected>Pendiente</option>
+                                    <option value="Pagado">Pagado</option>
+                                    <option value="Enviado">Enviado</option>
+                                    <option value="Borrador">Borrador</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-medium text-secondary">Forma de Pago</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="fas fa-money-bill-wave text-muted"></i></span>
+                                <select name="forma_pago" class="form-select" required>
+                                    <option value="efectivo" selected>Efectivo</option>
+                                    <option value="tarjeta">Tarjeta</option>
+                                    <option value="transferencia">Transferencia</option>
+                                    <option value="cheque">Cheque</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Ítems -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-secondary mb-3">Detalle de la Factura</h6>
+                        <div class="rounded-3 border">
+                            <table id="items-table" class="table table-hover align-middle mb-0">
+                                <thead class="bg-light text-secondary">
+                                    <tr>
+                                        <th scope="col" class="ps-3 py-3" style="min-width: 250px;">Descripción</th>
+                                        <th scope="col" class="py-3" style="width: 120px;">Cantidad</th>
+                                        <th scope="col" class="py-3" style="width: 150px;">Precio Unit.</th>
+                                        <th scope="col" class="py-3 text-end" style="width: 120px;">Subtotal</th>
+                                        <th scope="col" class="pe-3 py-3 text-center" style="width: 60px;"><i class="fas fa-trash-alt"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="ps-3 position-relative">
+                                            <input type="text" 
+                                                   name="descripcion[]" 
+                                                   class="form-control form-control-sm" 
+                                                   placeholder="Buscar producto..." 
+                                                   autocomplete="off"
+                                                   hx-get="{{ url_for('producto.buscar_productos') }}"
+                                                   hx-trigger="keyup changed delay:500ms"
+                                                   hx-target="next .producto-results"
+                                                   onclick="activarBusquedaProducto(this)"
+                                                   onkeyup="activarBusquedaProducto(this)"
+                                                   onkeydown="checkEnter(event, this)"
+                                                   required>
+                <div class="producto-results position-absolute shadow-sm bg-white rounded-bottom" style="z-index: 1000; left: 0; min-width: 100%;"></div>
+                <input type="hidden" name="producto_id[]" class="producto_id">
+            </td>
+                                        <td><input type="number" name="cantidad[]" step="0.01" class="form-control form-control-sm cantidad text-end" value="1" required></td>
+                                        <td><input type="number" name="precio_unitario[]" step="0.01" class="form-control form-control-sm precio text-end" placeholder="0.00" required></td>
+                                        <td class="subtotal text-end fw-bold text-dark pe-2">0.00</td>
+                                        <td class="pe-3 text-center">
+                                            <button type="button" onclick="eliminarFila(this)" class="btn btn-sm btn-outline-danger border-0">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-3">
+                            <button type="button" onclick="agregarFila()" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-plus me-1"></i> Agregar Ítem
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Totales -->
+                    <div class="row justify-content-end">
+                        <div class="col-md-5 col-lg-4">
+                            <div class="bg-light p-3 rounded-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-secondary small">Subtotal:</span>
+                                    <span id="subtotal-general" class="fw-bold text-dark">0.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <span class="text-secondary small me-2">Impuesto (%):</span>
+                                        <input type="number" id="impuesto" name="impuesto" step="0.01" value="18" class="form-control form-control-sm text-end" style="width: 70px;">
+                                    </div>
+                                    <span id="total-impuesto" class="fw-bold text-danger">0.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center border-top pt-2">
+                                    <span class="h5 fw-bold text-primary mb-0">Total:</span>
+                                    <input type="text" id="total-general" name="total" class="h5 fw-bold text-primary border-0 bg-transparent text-end mb-0" value="0.00" readonly style="width: 150px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <a href="{{ url_for('factura.listar_facturas') }}" class="btn btn-light">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-save me-2"></i>Guardar Factura
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+<script>
+    // Función para seleccionar cliente desde la búsqueda
+    function selectCliente(id, nombre) {
+        document.getElementById('cliente_id').value = id;
+        document.getElementById('cliente_search').value = nombre;
+        document.getElementById('client-search-results').innerHTML = ""; // Limpiar resultados
+    }
+
+    // --- Lógica de Productos ---
+    // Variable global para saber qué input disparó la búsqueda
+    let activeSearchInput = null;
+
+    function activarBusquedaProducto(input) {
+        activeSearchInput = input;
+        // HTMX se encarga del request, pero necesitamos limpiar otros resultados si los hubiera
+        document.querySelectorAll('.producto-results').forEach(div => {
+            if (div !== input.nextElementSibling) div.innerHTML = '';
+        });
+    }
+
+    function seleccionarProducto(nombre, precio, codigo, id, stock, tipo) {
+        if (activeSearchInput) {
+            const row = activeSearchInput.closest('tr');
+            // Llenar datos
+            activeSearchInput.value = nombre + (codigo ? ` (${codigo})` : '');
+            row.querySelector('.precio').value = precio;
+            row.querySelector('.producto_id').value = id; // Set hidden ID
+            
+            // Guardar stock y tipo para validación
+            row.dataset.stock = stock || 0;
+            row.dataset.tipo = tipo || 'Producto';
+
+            // Limpiar resultados
+            activeSearchInput.nextElementSibling.innerHTML = '';
+            
+            // Recalcular
+            calcularTotales();
+            
+            // Reset
+            activeSearchInput = null;
+        }
+    }
+
+    function checkEnter(e, input) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const results = input.nextElementSibling; // div.producto-results
+            if (results) {
+                const firstItem = results.querySelector('button');
+                if (firstItem) {
+                    firstItem.click();
+                }
+            }
+        }
+    }
+
+    // Funciones de la Tabla de Ítems
+    function agregarFila() {
+        const tabla = document.getElementById('items-table').getElementsByTagName('tbody')[0];
+        const nuevaFila = tabla.insertRow();
+        nuevaFila.innerHTML = `
+            <td class="ps-3 position-relative">
+                <input type="text" 
+                       name="descripcion[]" 
+                       class="form-control form-control-sm" 
+                       placeholder="Buscar producto..." 
+                       autocomplete="off"
+                       hx-get="{{ url_for('producto.buscar_productos') }}"
+                       hx-trigger="keyup changed delay:500ms"
+                       hx-target="next .producto-results"
+                       onclick="activarBusquedaProducto(this)"
+                       onkeyup="activarBusquedaProducto(this)"
+                       onkeydown="checkEnter(event, this)"
+                       required>
+                <div class="producto-results position-absolute shadow-sm bg-white rounded-bottom" style="z-index: 1000; left: 0; min-width: 100%;"></div>
+                <input type="hidden" name="producto_id[]" class="producto_id">
+            </td>
+            <td><input type="number" name="cantidad[]" step="0.01" class="form-control form-control-sm cantidad text-end" value="1" required></td>
+            <td><input type="number" name="precio_unitario[]" step="0.01" class="form-control form-control-sm precio text-end" required></td>
+            <td class="subtotal text-end fw-bold text-dark pe-2">0.00</td>
+            <td class="pe-3 text-center">
+                <button type="button" onclick="eliminarFila(this)" class="btn btn-sm btn-outline-danger border-0">
+                    <i class="fas fa-times"></i>
+                </button>
+            </td>
+        `;
+        
+        // Procesar HTMX en el nuevo contenido
+        htmx.process(nuevaFila);
+        
+        agregarEventosFila(nuevaFila);
+        calcularTotales(); 
+    }
+
+    function eliminarFila(boton) {
+        const filas = document.querySelectorAll('#items-table tbody tr');
+        if (filas.length > 1) {
+            boton.closest('tr').remove();
+            calcularTotales();
+        } else {
+            alert('Debe haber al menos un ítem en la factura');
+        }
+    }
+
+    function calcularTotales() {
+        let subtotalGeneral = 0;
+        document.querySelectorAll('#items-table tbody tr').forEach(fila => {
+            const cantidad = parseFloat(fila.querySelector('.cantidad').value) || 0;
+            const precio = parseFloat(fila.querySelector('.precio').value) || 0;
+            const subtotal = cantidad * precio;
+            
+            fila.querySelector('.subtotal').textContent = subtotal.toFixed(2);
+            subtotalGeneral += subtotal;
+        });
+
+        const impuestoInput = document.getElementById('impuesto');
+        const impuesto = parseFloat(impuestoInput.value) || 0;
+        
+        const totalImpuesto = subtotalGeneral * (impuesto / 100);
+        const totalGeneral = subtotalGeneral + totalImpuesto;
+
+        document.getElementById('subtotal-general').textContent = totalGeneral > 0 ? subtotalGeneral.toFixed(2) : '0.00';
+        document.getElementById('total-impuesto').textContent = totalGeneral > 0 ? totalImpuesto.toFixed(2) : '0.00';
+        document.getElementById('total-general').value = totalGeneral > 0 ? totalGeneral.toFixed(2) : '0.00';
+    }
+
+    function agregarEventosFila(fila) {
+        fila.querySelectorAll('.cantidad, .precio').forEach(input => {
+            input.addEventListener('input', calcularTotales);
+        });
+    }
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', () => {
+        // Poner fecha actual por defecto si no viene del backend
+        const dateInput = document.querySelector('input[name="fecha"]');
+        if (dateInput && !dateInput.value) {
+            dateInput.valueAsDate = new Date();
+        }
+
+        // Eventos para las filas existentes
+        document.querySelectorAll('#items-table tbody tr').forEach(fila => {
+            agregarEventosFila(fila);
+        });
+        
+        // Evento impuesto
+        document.getElementById('impuesto').addEventListener('input', calcularTotales);
+
+        // Validar Stock al enviar
+        document.getElementById('factura-form').addEventListener('submit', function(e) {
+            let warnings = [];
+            document.querySelectorAll('#items-table tbody tr').forEach(row => {
+                const tipo = row.dataset.tipo;
+                const stock = parseFloat(row.dataset.stock) || 0;
+                const cantidad = parseFloat(row.querySelector('.cantidad').value) || 0;
+                const nombre = row.querySelector('input[name="descripcion[]"]').value;
+
+                // Solo validamos si es Producto (no servicio) y tiene ID seleccionado (stock dataset presente)
+                if (tipo === 'Producto' && row.dataset.stock !== undefined) {
+                    if (cantidad > stock) {
+                        warnings.push(`- ${nombre}: Solicitado ${cantidad} / Disponible ${stock}`);
+                    }
+                }
+            });
+
+            if (warnings.length > 0) {
+                e.preventDefault(); // Detener envío por defecto
+                
+                const htmlMsg = "<ul style='text-align: left;'>" + 
+                                warnings.map(w => `<li>${w}</li>`).join("") + 
+                                "</ul><br><strong>¿Desea guardar la factura de todas formas?</strong>";
+
+                Swal.fire({
+                    title: 'Advertencia de Inventario',
+                    html: htmlMsg,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ffc107',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, guardar',
+                    cancelButtonText: 'Revisar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        e.target.submit(); // Enviar formulario manualmente
+                    }
+                });
+            }
+        });
+
+        // Click fuera para cerrar búsquedas de productos
+        document.addEventListener('click', function(e) {
+            const results = document.querySelectorAll('.producto-results');
+            results.forEach(r => {
+                if (!r.contains(e.target) && e.target !== r.previousElementSibling) {
+                    r.innerHTML = '';
+                }
+            });
+            
+            // Cerrar búsqueda clientes también
+            const container = document.getElementById('client-search-results');
+            const input = document.getElementById('cliente_search');
+            if (container && !container.contains(e.target) && e.target !== input) {
+                container.innerHTML = '';
+            }
+        });
+    });
+</script>
+{% endblock %}

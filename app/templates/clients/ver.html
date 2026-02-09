@@ -1,0 +1,97 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}
+    Veloce | Detalle del Cliente
+{% endblock %}
+
+{% block dashboard_content %}
+
+<div class="container-fluid p-0">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('cliente.listar_clientes') }}">Clientes</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ cliente.nombre }} {{ cliente.apellido }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Columna Izquierda: Información del Cliente -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                            <i class="fas fa-user fa-lg"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0 fw-bold text-dark">Información</h5>
+                            <p class="text-muted small mb-0">Detalles del cliente</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <span class="h2 text-secondary mb-0 fw-bold">{{ cliente.nombre[0] }}{{ cliente.apellido[0] }}</span>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-1">{{ cliente.nombre }} {{ cliente.apellido }}</h4>
+                        <p class="text-muted mb-0">{{ cliente.correo }}</p>
+                    </div>
+
+                    <div class="border-top pt-3">
+                        <div class="mb-3">
+                            <label class="small text-muted text-uppercase fw-bold mb-1">Teléfono</label>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-phone-alt text-secondary me-2"></i>
+                                <span class="text-dark">{{ cliente.telefono }}</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small text-muted text-uppercase fw-bold mb-1">Identificación</label>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-id-card text-secondary me-2"></i>
+                                <span class="text-dark">{{ cliente.identificacion or 'No especificada' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="{{ url_for('cliente.editar_cliente', cliente_id=cliente.id) }}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-2"></i> Editar Cliente
+                        </a>
+                        <a href="{{ url_for('factura.crear_factura_route') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i> Nueva Factura
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Historial de Facturas -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                                <i class="fas fa-history fa-lg"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0 fw-bold text-dark">Historial de Facturas</h5>
+                                <p class="text-muted small mb-0">Transacciones recientes</p>
+                            </div>
+                        </div>
+                        <span class="badge bg-light text-dark border">{{ pagination.total or 0 }} registros</span>
+                    </div>
+                </div>
+                
+                <div class="card-body p-0">
+                    {% include 'clients/partials/_facturas_cliente.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

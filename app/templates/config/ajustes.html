@@ -1,0 +1,106 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Ajustes de la Organización{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid px-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 mt-4">
+                <div class="card-header bg-white border-0 pt-4 pb-0">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+                            <i class="fas fa-cog fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-1">Configuración de la Organización</h4>
+                            <p class="text-muted mb-0">Actualiza la información de tu empresa</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ url_for('config.ajustes') }}" method="POST" enctype="multipart/form-data">
+                        
+                        <!-- Logo Section -->
+                        <div class="mb-4 text-center">
+                            <div class="position-relative d-inline-block">
+                                {% if org.logo %}
+                                    <img src="{{ org.logo }}" alt="Logo Actual" class="rounded-circle shadow-sm" style="width: 120px; height: 120px; object-fit: cover;" id="logoPreview">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='image/default_logo.png') }}" alt="Logo Default" class="rounded-circle shadow-sm" style="width: 120px; height: 120px; object-fit: cover;" id="logoPreview">
+                                {% endif %}
+                                <label for="logo" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2 shadow-sm cursor-pointer" style="cursor: pointer;" title="Cambiar Logo">
+                                    <i class="fas fa-camera"></i>
+                                    <input type="file" class="d-none" id="logo" name="logo" accept="image/*" onchange="previewImage(this)">
+                                </label>
+                            </div>
+                            <p class="text-muted small mt-2">Haz clic en la cámara para cambiar el logo</p>
+                        </div>
+
+                        <div class="row g-3">
+                            <!-- Nombre -->
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control bg-light border-0" id="nombre" name="nombre" placeholder="Nombre de la empresa" value="{{ org.nombre }}" required>
+                                    <label for="nombre"><i class="fas fa-building me-2 text-muted"></i>Nombre de la Empresa</label>
+                                </div>
+                            </div>
+
+                            <!-- RNC -->
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control bg-light border-0" id="rnc" name="rnc" placeholder="RNC" value="{{ org.rnc }}" required>
+                                    <label for="rnc"><i class="fas fa-id-card me-2 text-muted"></i>RNC</label>
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="email" class="form-control bg-light border-0" id="email" name="email" placeholder="correo@ejemplo.com" value="{{ org.email }}" required>
+                                    <label for="email"><i class="fas fa-envelope me-2 text-muted"></i>Correo Electrónico</label>
+                                </div>
+                            </div>
+
+                            <!-- Teléfono -->
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="tel" class="form-control bg-light border-0" id="telefono" name="telefono" placeholder="Teléfono" value="{{ org.telefono }}" required>
+                                    <label for="telefono"><i class="fas fa-phone me-2 text-muted"></i>Teléfono</label>
+                                </div>
+                            </div>
+
+                            <!-- Dirección -->
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <textarea class="form-control bg-light border-0" placeholder="Dirección completa" id="direccion" name="direccion" style="height: 100px" required>{{ org.direccion }}</textarea>
+                                    <label for="direccion"><i class="fas fa-map-marker-alt me-2 text-muted"></i>Dirección</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{{ url_for('main.dashboard') }}" class="btn btn-light btn-lg px-4 rounded-pill">Cancelar</a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
+                                <i class="fas fa-save me-2"></i>Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('logoPreview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}

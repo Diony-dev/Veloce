@@ -1,0 +1,28 @@
+{% if clientes %}
+<div class="list-group rounded-0 rounded-bottom">
+    {% for cliente in clientes %}
+    <button type="button" class="list-group-item list-group-item-action border-start-0 border-end-0"
+            onclick="selectCliente('{{ cliente.id }}', '{{ cliente.nombre }} {{ cliente.apellido }}')">
+        <div class="d-flex w-100 justify-content-between align-items-center">
+            <div>
+                <h6 class="mb-0 fw-bold text-dark">{{ cliente.nombre }} {{ cliente.apellido }}</h6>
+                <small class="text-muted"><i class="fas fa-envelope me-1"></i>{{ cliente.correo }}</small>
+            </div>
+            <small class="text-secondary badge bg-light text-dark border"><i class="fas fa-id-card me-1"></i>{{ cliente.identificacion or 'N/A' }}</small>
+        </div>
+    </button>
+    {% endfor %}
+</div>
+{% elif request.args.get('q')|length > 1 %}
+<div class="list-group rounded-top-0">
+    <div class="list-group-item text-center p-3 border-start-0 border-end-0">
+        <div class="mb-2">
+            <i class="fas fa-user-slash fa-lg text-muted"></i>
+        </div>
+        <p class="text-muted small mb-2">No se encontraron clientes coincidente.</p>
+        <a href="{{ url_for('cliente.create_client') }}" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-user-plus me-1"></i> Crear Nuevo Cliente
+        </a>
+    </div>
+</div>
+{% endif %}

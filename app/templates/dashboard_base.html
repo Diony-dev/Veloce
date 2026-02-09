@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block head_extra %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+/* ===== Dashboard general ===== */
+/* Agrega esto a tus estilos existentes */
+.htmx-indicator {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.htmx-request .htmx-indicator {
+    opacity: 1;
+}
+
+/* Smooth transitions */
+#facturas-container {
+    transition: opacity 0.3s ease;
+}
+
+.htmx-request #facturas-container {
+    opacity: 0.7;
+}
+
+/* Pagination styles */
+.page-item.active .page-link {
+    background-color: var(--veloce-primary);
+    border-color: var(--veloce-primary);
+}
+
+.page-link {
+    color: var(--veloce-primary);
+}
+
+.page-link:hover {
+    color: var(--veloce-primary);
+    background-color: #f8f9fa;
+}
+
+/* Loading spinner */
+.spinner-border {
+    width: 2rem;
+    height: 2rem;
+}
+.dashboard-wrapper {
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+    width: 250px;
+    background-color: #4343ce;
+    color: white;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 1050;
+}
+
+.sidebar-header {
+    padding: 20px;
+    background-color: #ececf1;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--veloce-primary);
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.sidebar-menu li a {
+    display: block;
+    padding: 12px 20px;
+    color: #ddd;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.sidebar-menu li a:hover,
+.sidebar-menu li a.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+/* ===== Main content ===== */
+.main-content {
+    margin-left: 250px;
+    flex-grow: 1;
+    background: #f8f9fa;
+    min-height: 100vh;
+    transition: margin-left 0.3s ease;
+    padding-top: 70px;
+}
+
+/* ===== Topbar ===== */
+.topbar {
+    background-color: #fff;
+    padding: 10px 20px;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 250px;
+    right: 0;
+    z-index: 1040;
+    transition: left 0.3s ease;
+}
+
+.topbar h2 {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 992px) {
+    .sidebar {
+        left: -250px;
+    }
+    .sidebar.active {
+        left: 0;
+    }
+    .main-content {
+        margin-left: 0;
+    }
+    .topbar {
+        left: 0;
+    }
+}
+.dashboard-banner {
+    background: linear-gradient(135deg, var(--veloce-primary) 60%, var(--veloce-accent) 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.dashboard-banner h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+
+.dashboard-logo {
+    height: 80px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 0.5rem;
+    background-color: rgba(255,255,255,0.2);
+    padding: 0.5rem;
+    box-shadow: 0 0 8px rgba(255,255,255,0.2);
+    transition: transform 0.3s ease;
+}
+
+.dashboard-logo:hover {
+    transform: scale(1.05);
+}
+
+/* Para pantallas pequeñas */
+@media (max-width: 768px) {
+    .dashboard-banner {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .dashboard-logo {
+        height: 70px;
+    }
+}
+
+</style>
+
+{%block styles%}
+{% endblock %}
+{% endblock %}
+
+{% block content %}
+<!-- Ocultamos el navbar y footer del base -->
+<style>
+    nav.navbar, footer { display: none !important; }
+</style>
+
+<div class="dashboard-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+         <h2><a onclick="esconderClick()" style="text-decoration: none;"><i class="fas fa-bolt"></i> VELOCE</a></h2>
+        </div>
+        <ul class="sidebar-menu">
+           <li><a href="{{ url_for('main.dashboard') }}"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="{{ url_for('factura.listar_facturas') }}"><i class="fas fa-file-invoice"></i> Facturas</a></li>
+            <li><a href="{{url_for('cliente.listar_clientes')}}"><i class="fas fa-users"></i> Clientes</a></li>
+            <li><a href="{{ url_for('gastos.listar_gastos') }}"><i class="fas fa-wallet"></i> Gastos</a></li>
+            <li><a href="{{ url_for('report.index') }}"><i class="fas fa-chart-pie"></i> Reportes</a></li>
+            <li><a href="{{ url_for('producto.listar_productos') }}"><i class="fas fa-boxes"></i> Productos</a></li>
+            {% if current_user.rol == 'admin' %}
+            <li><a href="{{ url_for('config.ajustes') }}"><i class="fas fa-cog"></i> Configuración</a></li>
+            <li><a href="{{ url_for('team.listar_equipo') }}"><i class="fas fa-users-cog"></i> Equipo</a></li>
+            {% endif %}
+            
+            <li><a href="{{ url_for('auth.perfil') }}"><i class="fas fa-user-circle"></i> Mi Perfil</a></li>
+            <li><a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a></li>
+        </ul>
+    </aside>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+
+        <!-- Topbar -->
+        <div class="topbar">
+            <button id="sidebarToggle" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h2>{% block title %}{% endblock %}</h2>
+            <div class="dropdown">
+                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% if current_user.foto == 'default.jpg' %}
+                    <img src="{{url_for('static', filename='image/default.jpg') }}" 
+                         alt="Perfil" width="35" height="35" 
+                         class="rounded-circle me-2 border object-fit-cover">
+                    {% else %}
+                    <img src="{{ current_user.foto }}" 
+                         alt="Perfil" width="35" height="35" 
+                         class="rounded-circle me-2 border object-fit-cover">
+                    {% endif %}
+                    <span class="fw-medium">{{ current_user.nombre }}</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" aria-labelledby="userDropdown">
+                    <li><div class="dropdown-header text-muted small text-uppercase">Mi Cuenta</div></li>
+                    <li><a class="dropdown-item" href="{{ url_for('auth.perfil') }}"><i class="fas fa-user-circle me-2 text-primary"></i>Configurar Perfil</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Área de contenido -->
+        <div class="container-fluid py-4">
+            {% block dashboard_content %}{% endblock %}
+        </div>
+
+    </div>
+</div>
+
+
+
+<script>
+document.getElementById("sidebarToggle").addEventListener("click", () => {
+    document.getElementById("sidebar").classList.toggle("active");
+    
+});
+function esconderClick() {
+    document.getElementById("sidebar").classList.remove("active");
+}
+
+</script>
+
+{% endblock %}
+
+

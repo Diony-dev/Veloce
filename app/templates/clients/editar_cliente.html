@@ -1,0 +1,73 @@
+{% extends 'dashboard_base.html' %}
+
+{% block dashboard_content %}
+<div class="container-fluid p-0">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                            <i class="fas fa-user-edit fa-lg"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0 fw-bold text-dark">Editar Cliente</h5>
+                            <p class="text-muted small mb-0">Modifica los datos del cliente</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <form class="form" method="post" action="{{ url_for('cliente.editar_cliente', cliente_id=cliente.id) }}">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium text-secondary">Nombre <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-user text-muted"></i></span>
+                                    <input type="text" class="form-control" name="nombre" value="{{ cliente.nombre }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium text-secondary">Apellido <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-user text-muted"></i></span>
+                                    <input type="text" class="form-control" name="apellido" value="{{ cliente.apellido }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium text-secondary">Correo Electrónico</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-envelope text-muted"></i></span>
+                                    <input type="email" class="form-control" name="correo" value="{{ cliente.correo }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium text-secondary">Teléfono</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-phone text-muted"></i></span>
+                                    <input type="tel" class="form-control" name="telefono" value="{{ cliente.telefono }}">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-medium text-secondary">Documento de Identidad</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-id-card text-muted"></i></span>
+                                    <input type="text" class="form-control" name="identificacion" value="{{ cliente.identificacion or '' }}">
+                                </div>
+                            </div>
+                            
+                            <div class="col-12 mt-4">
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{{ url_for('cliente.listar_clientes') }}" class="btn btn-light me-md-2">Cancelar</a>
+                                    <button type="submit" class="btn btn-warning px-4">
+                                        <i class="fas fa-save me-2"></i>Actualizar Cliente
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+<div class="space-y-4">
+    {% for factura in facturas %}
+    <div class="bg-white rounded-2xl shadow-md p-4">
+        <div class="flex justify-between items-center">
+            <h3 class="font-semibold text-gray-800">
+                Factura #{{ factura.invoice_num }}
+            </h3>
+            <span class="text-sm text-gray-500">{{ factura.fecha }}</span>
+        </div>
+        <p class="text-gray-600 mt-2"><strong>Cliente:</strong> {{ factura.cliente }}</p>
+        <p class="text-gray-600"><strong>Vendedor:</strong> {{ factura.vendedor }}</p>
+        <p class="text-gray-800 font-semibold mt-1">${{ factura.total }}</p>
+
+        <div class="flex justify-end space-x-3 mt-3 border-t pt-2">
+            <a href="{{ url_for('factura.ver_factura', factura_id=factura._id) }}" 
+               class="text-[var(--veloce-primary)] hover:text-blue-700">
+                <i class="fa-solid fa-eye"></i>
+            </a>
+            <a href="{{ url_for('factura.editar_factura', factura_id=factura._id) }}" 
+               class="text-[var(--veloce-accent)] hover:text-green-700">
+                <i class="fa-solid fa-pen-to-square"></i>
+            </a>
+            <form action="{{ url_for('factura.eliminar_factura', factura_id=factura._id) }}" 
+                  method="POST" 
+                  style="display:inline;">
+                <button type="submit" 
+                        class="text-red-600 hover:text-red-800"
+                        onclick="return confirm('¿Seguro que deseas eliminar esta factura?');">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-center">No hay facturas registradas.</p>
+    {% endfor %}
+</div>
